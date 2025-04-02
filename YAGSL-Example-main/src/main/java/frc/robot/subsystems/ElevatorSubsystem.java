@@ -80,8 +80,10 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setPositionRotations(double rotations) {
         ClosedLoopSlot slot;
         if (rotations < getPositionRotations()) {
+            System.out.println("setPositionRotations - if");
             controller.setReference(rotations, ControlType.kMAXMotionPositionControl, ClosedLoopSlot.kSlot1); // Down case; use max motion and slot 1
         } else {
+            System.out.println("setPositionRotations - else");
             controller.setReference(rotations, ControlType.kPosition, ClosedLoopSlot.kSlot0); // Up case; use plain position control, slot 0
         }
     }
@@ -121,18 +123,25 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command goTo(Position position) {
         switch (position) {
             case stow:
+                System.out.println("goTo - stow");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.STOW_ROT));
             case L1:
+            System.out.println("goTo - L1");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.L1_ROT));
             case L2:
+            System.out.println("goTo - L2");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.L2_ROT));
             case L3:
+            System.out.println("goTo - L3");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.L3_ROT));
             case L4:
+            System.out.println("goTo - L4");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.L4_ROT));
             case IN:
+            System.out.println("goTo - IN");
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.IN_ROT));
             default:
+                System.out.println("default");  
                 invalidStateRequested.set(true);
                 return new InstantCommand(()->setPositionRotations(ElevatorConstants.STOW_ROT));
         }
