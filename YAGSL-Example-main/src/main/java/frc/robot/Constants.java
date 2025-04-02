@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -137,9 +138,14 @@ public final class Constants
     }
 
     public static final class WristConstants{
-        public static final int MOTOR_ID = 4;
-        public static double STOW_ANGLE = 2.1;
-        public static double REEF_ACQUIRE_ANGLE = 30;
+        public static final int MOTOR_ID = 16;
+        public static double STOW_ROT_WRIST = -0.1;
+        public static double INTAKE_ROT_WRIST = -3.957139;
+        public static double L1_ROT_WRIST = -13.47621822;
+        public static double L2_ROT_WRIST = -13.738119125366211;
+        public static double L3_ROT_WRIST = -16.38093376;
+        public static double L4_ROT_WRIST = -11.690532684326172;
+
         public static final double P = 0.03;
         public static final double I = 0.0;
         public static final double D = 0.01;
@@ -156,7 +162,6 @@ public final class Constants
             closedLoop.i(WristConstants.I);
             closedLoop.d(WristConstants.D);
             closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
-            absoluteEncoder.positionConversionFactor(360);
         }};
     }
 
