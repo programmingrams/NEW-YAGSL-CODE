@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -36,7 +37,7 @@ public class RobotContainer
 {
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  final         CommandXboxController driverXbox = new CommandXboxController(0);
+  final         CommandXboxController driverXbox = new CommandXboxController(6);
 
   Joystick leftJoy = new Joystick(0);
   Joystick rightJoy = new Joystick(1);
@@ -124,23 +125,24 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-    new Trigger(() -> operator.getRawButton(11))
+    new JoystickButton(operator, 11)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.L1)));
 
-    new Trigger(() -> operator.getRawButton(9))
+    new JoystickButton(operator, 9)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.L2)));
 
-    new Trigger(() -> operator.getRawButton(3))
+    new JoystickButton(operator, 3)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.IN)));
 
-    new Trigger(() -> operator.getRawButton(7))
+    new JoystickButton(operator, 7)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.L3)));
 
-    new Trigger(() -> operator.getRawButton(8))
+    new JoystickButton(operator, 8)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.L4)));
 
-    new Trigger(() -> operator.getRawButton(1))
+    new JoystickButton(operator, 1)
         .onTrue(new InstantCommand(() -> elevator.goTo(Position.stow)));
+
 
 
 
