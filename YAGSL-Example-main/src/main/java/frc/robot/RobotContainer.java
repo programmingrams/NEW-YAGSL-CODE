@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -125,25 +124,23 @@ public class RobotContainer
    */
   private void configureBindings()
   {
-    new JoystickButton(operator, 11)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.L1)));
+    Trigger elevatorTargetL1 = new Trigger(() -> operator.getRawButton(11));
+    elevatorTargetL1.onTrue(new InstantCommand(() -> elevator.goTo(Position.L1)));
 
-    new JoystickButton(operator, 9)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.L2)));
+    Trigger elevatorTargetL2 = new Trigger(() -> operator.getRawButton(9));
+    elevatorTargetL2.onTrue(new InstantCommand(() -> elevator.goTo(Position.L2)));
 
-    new JoystickButton(operator, 3)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.IN)));
-
-    new JoystickButton(operator, 7)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.L3)));
-
-    new JoystickButton(operator, 8)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.L4)));
-
-    new JoystickButton(operator, 1)
-        .onTrue(new InstantCommand(() -> elevator.goTo(Position.stow)));
-
-
+    Trigger elevatorTargetIN = new Trigger(() -> operator.getRawButton(3));
+    elevatorTargetIN.onTrue(new InstantCommand(() -> elevator.goTo(Position.IN)));
+    
+    Trigger elevatorTargetL3 = new Trigger(() -> operator.getRawButton(7));
+    elevatorTargetL3.onTrue(new InstantCommand(() -> elevator.goTo(Position.L3)));
+    
+    Trigger elevatorTargetL4 = new Trigger(() -> operator.getRawButton(8));
+    elevatorTargetL4.onTrue(new InstantCommand(() -> elevator.goTo(Position.L4)));
+    
+    Trigger elevatorTargetstow = new Trigger(() -> operator.getRawButton(1));
+    elevatorTargetstow.onTrue(new InstantCommand(() -> elevator.goTo(Position.stow)));
 
 
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
