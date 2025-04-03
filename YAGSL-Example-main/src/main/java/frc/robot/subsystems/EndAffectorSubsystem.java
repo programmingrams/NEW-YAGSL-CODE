@@ -27,15 +27,11 @@ public class EndAffectorSubsystem extends SubsystemBase {
                 SparkBase.ResetMode.kResetSafeParameters,
                 SparkBase.PersistMode.kPersistParameters
             );
-            intakeCoralBeamBreak = intakeMotor.getReverseLimitSwitch();
-            placementCoralBeamBreak = new DigitalInput(EndAffectorConstants.PLACEMENT_CORAL_BEAM_BREAK_ID);
 
     }
 
     @Override
     public void periodic() {
-        SmartDashboard.putBoolean("intakeHasCoral", intakeHasCoral());
-        SmartDashboard.putBoolean("placementHasCoral", placementHasCoral());
     }
 
     /**
@@ -68,27 +64,21 @@ public class EndAffectorSubsystem extends SubsystemBase {
      * Returns the speed that the intake motor should run to continue to intake coral
      * @return the speed the motor should run
      */
-    public double coralSpeed() {
-        if(intakeHasCoral()) {
-            if(placementHasCoral()) {
-                return EndAffectorConstants.ALIGNING_CORAL_SPEED;
-            }
-            return EndAffectorConstants.CONVEYING_CORAL_SPEED;
-        }
-        if(placementHasCoral()) {
-            return EndAffectorConstants.HOLD_CORAL_SPEED;
-        }
-        return EndAffectorConstants.INTAKE_CORAL_SPEED;
-    }
 
     /**
      * Runs the intake until the robot has coral, slowing down as coral progresses through the system
      * @return the command
      */
+    public Command holdCoralCommand() {
+        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.HOLD_CORAL_SPEED));
+    }    
+    
     public Command intakeCoralCommand() {
-        return new RunCommand(() -> setCoralSpeed(coralSpeed()))
-            .until(this::hasCoral)
-            .andThen(new InstantCommand(this::stopMotor));
+        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.INTAKE_CORAL_SPEED));
+    }    
+    
+    public Command depositCoralCommand() {
+        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.DEPOSIT_CORAL_SPEED));
     }
 
 }
