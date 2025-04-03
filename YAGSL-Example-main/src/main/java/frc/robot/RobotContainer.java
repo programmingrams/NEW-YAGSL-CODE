@@ -28,6 +28,7 @@ import swervelib.SwerveInputStream;
 import frc.robot.subsystems.ElevatorSubsystem.Position;
 import frc.robot.subsystems.WristSubsystem.WristPosition;
 import frc.robot.subsystems.WristSubsystem;
+import frc.robot.subsystems.EndAffectorSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a "declarative" paradigm, very
@@ -50,6 +51,7 @@ public class RobotContainer
                                                                                 "swerve/neo"));
   public final ElevatorSubsystem elevator = new ElevatorSubsystem();
   public final WristSubsystem wrist = new WristSubsystem();
+  public final EndAffectorSubsystem end = new EndAffectorSubsystem();
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
@@ -134,7 +136,7 @@ public class RobotContainer
     elevatorTargetL2.onTrue(elevator.goTo(Position.L2).alongWith(wrist.goTo(WristPosition.L2)));
 
     Trigger elevatorTargetIN = new Trigger(() -> operator.getRawButton(3));
-    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)));
+    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)).alongWith(end.holdCoral()));
     
     Trigger elevatorTargetL3 = new Trigger(() -> operator.getRawButton(7));
     elevatorTargetL3.onTrue(elevator.goTo(Position.L3).alongWith(wrist.goTo(WristPosition.L3)));

@@ -7,6 +7,7 @@ package frc.robot;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.geometry.Translation3d;
@@ -162,8 +163,30 @@ public final class Constants
             closedLoop.i(WristConstants.I);
             closedLoop.d(WristConstants.D);
         }};
+
     }
+    public static final class EndAffectorConstants{
+        public static final int MOTOR_ID = 16;
+
+        public static final double INTAKE_CORAL_SPEED = -0.4;
+        public static final double HOLD_CORAL_SPEED = -0.1;
+        public static final double DEPOSIT_CORAL_SPEED = 0.3;
+
+        public static final boolean INTAKE_INVERTED = false;
+        public static final int INTAKE_CURRENT_LIMIT = 30;
+        public static final double INTAKE_RAMP_RATE = 0.5;
+        public static final SparkMaxConfig MOTOR_CONFIG = new SparkMaxConfig() {{
+            idleMode(IdleMode.kBrake);
+            smartCurrentLimit(EndAffectorConstants.INTAKE_CURRENT_LIMIT);
+            inverted(EndAffectorConstants.INTAKE_INVERTED);
+            openLoopRampRate(EndAffectorConstants.INTAKE_RAMP_RATE);
+            limitSwitch.reverseLimitSwitchEnabled(true);
+        }};
 
 
 
+
+    }
+    
 }
+    
