@@ -128,22 +128,22 @@ public class RobotContainer
   private void configureBindings()
   {
     Trigger elevatorTargetL1 = new Trigger(() -> operator.getRawButton(11));
-    elevatorTargetL1.onTrue(elevator.goTo(Position.L1).alongWith(wrist.setPosition(WristPosition.L1)));
+    elevatorTargetL1.onTrue(elevator.goTo(Position.L1).alongWith(wrist.goTo(WristPosition.L1)));
 
     Trigger elevatorTargetL2 = new Trigger(() -> operator.getRawButton(9));
-    elevatorTargetL2.onTrue(elevator.goTo(Position.L2));
+    elevatorTargetL2.onTrue(elevator.goTo(Position.L2).alongWith(wrist.goTo(WristPosition.L2)));
 
     Trigger elevatorTargetIN = new Trigger(() -> operator.getRawButton(3));
-    elevatorTargetIN.onTrue(elevator.goTo(Position.IN));
+    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)));
     
     Trigger elevatorTargetL3 = new Trigger(() -> operator.getRawButton(7));
-    elevatorTargetL3.onTrue(elevator.goTo(Position.L3));
+    elevatorTargetL3.onTrue(elevator.goTo(Position.L3).alongWith(wrist.goTo(WristPosition.L3)));
     
     Trigger elevatorTargetL4 = new Trigger(() -> operator.getRawButton(8));
-    elevatorTargetL4.onTrue(elevator.goTo(Position.L4));
+    elevatorTargetL4.onTrue(elevator.goTo(Position.L4).alongWith(wrist.goTo(WristPosition.L4)));
     
     Trigger elevatorTargetstow = new Trigger(() -> operator.getRawButton(1));
-    elevatorTargetstow.onTrue(elevator.goTo(Position.stow));
+    elevatorTargetstow.onTrue(elevator.goTo(Position.stow).alongWith(wrist.goTo(WristPosition.stow)));
 
 
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);

@@ -85,25 +85,25 @@ public class WristSubsystem extends SubsystemBase {
         switch (position) {
             case stow:
                 System.out.println("goTo - stow");
-                return new InstantCommand(()->setPosition(WristConstants.STOW_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.STOW_ROT_WRIST));
             case L1:
             System.out.println("goTo - L1");
-                return new InstantCommand(()->setPosition(WristConstants.L1_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.L1_ROT_WRIST));
             case L2:
             System.out.println("goTo - L2");
-                return new InstantCommand(()->setPosition(WristConstants.L2_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.L2_ROT_WRIST));
             case L3:
             System.out.println("goTo - L3");
-                return new InstantCommand(()->setPosition(WristConstants.L3_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.L3_ROT_WRIST));
             case L4:
             System.out.println("goTo - L4");
-                return new InstantCommand(()->setPosition(WristConstants.L4_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.L4_ROT_WRIST));
             case IN:
             System.out.println("goTo - IN");
-                return new InstantCommand(()->setPosition(WristConstants.INTAKE_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.INTAKE_ROT_WRIST));
             default:
                 System.out.println("default");  
-                return new InstantCommand(()->setPosition(WristConstants.STOW_ROT_WRIST));
+                return new InstantCommand(()->setAngle(WristConstants.STOW_ROT_WRIST));
         }
     }
 
