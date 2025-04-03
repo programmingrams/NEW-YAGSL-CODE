@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkLowLevel;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -17,20 +19,20 @@ import frc.robot.Constants.WristConstants;
 public class WristSubsystem extends SubsystemBase {
 
      private final SparkBase angleMotor;
-     private SparkAbsoluteEncoder angleEncoder;
+     private RelativeEncoder angleEncoder;
      private SparkClosedLoopController angleClosedLoop;
      private double holdAngle;
      public enum WristPosition {stow, L1, L2, L3, L4, IN};
      public WristSubsystem ()
      {
        
-          angleMotor = new SparkMax(WristConstants.MOTOR_ID, MotorType.kBrushless); 
+          angleMotor = new SparkMax(WristConstants.MOTOR_ID, SparkLowLevel.MotorType.kBrushless); 
           angleMotor.configure(WristConstants.MOTOR_CONFIG,
                SparkBase.ResetMode.kResetSafeParameters,
                SparkBase.PersistMode.kPersistParameters
           );   
           angleClosedLoop = angleMotor.getClosedLoopController();
-          angleEncoder = angleMotor.getAbsoluteEncoder();
+          angleEncoder = angleMotor.getEncoder();
           holdAngle = WristConstants.STOW_ROT_WRIST;
      }
 

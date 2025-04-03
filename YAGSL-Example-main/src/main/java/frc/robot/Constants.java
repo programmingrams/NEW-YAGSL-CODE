@@ -87,7 +87,7 @@ public final class Constants
             
         public static final boolean LEADER_INVERTED = false;
         public static final boolean FOLLOWER_INVERTED_FROM_LEADER = true;
-        public static final int CURRENT_LIMIT = 80;
+        public static final int CURRENT_LIMIT = 30;
         public static final double RAMP_RATE = .01;
         public static final double OUTPUT_MINIMUM = -1.0;
         public static final double OUTPUT_MAXIMUM = 1.0;
@@ -161,7 +161,6 @@ public final class Constants
             closedLoop.p(WristConstants.P);
             closedLoop.i(WristConstants.I);
             closedLoop.d(WristConstants.D);
-            closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
         }};
     }
 
