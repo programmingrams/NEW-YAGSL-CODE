@@ -136,7 +136,7 @@ public class RobotContainer
     elevatorTargetL2.onTrue(elevator.goTo(Position.L2).alongWith(wrist.goTo(WristPosition.L2)));
 
     Trigger elevatorTargetIN = new Trigger(() -> operator.getRawButton(3));
-    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)).alongWith(end.holdCoralCommand()));
+    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)));
     
     Trigger elevatorTargetL3 = new Trigger(() -> operator.getRawButton(7));
     elevatorTargetL3.onTrue(elevator.goTo(Position.L3).alongWith(wrist.goTo(WristPosition.L3)));
@@ -149,7 +149,13 @@ public class RobotContainer
 
     
     Trigger coralIntake = new Trigger(() -> leftJoy.getTrigger());
-    coralIntake.onTrue(end.intakeCoralCommand());
+    coralIntake.onTrue(end.intakeCoralCommand());  // Runs intake when pressed
+    coralIntake.onFalse(end.holdCoralCommand());  // Runs hold when released
+    
+    Trigger coralDeposit = new Trigger(() -> rightJoy.getTrigger());
+    coralDeposit.onTrue(end.depositCoralCommand());  // Runs deposit when pressed
+    coralDeposit.onFalse(end.stopMotorCommand()); // Stops motor when released
+    
 
 
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);

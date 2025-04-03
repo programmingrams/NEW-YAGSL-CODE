@@ -51,8 +51,8 @@ public class EndAffectorSubsystem extends SubsystemBase {
     }
         
 
-    public void stopMotor() {
-        intakeMotor.set(0);
+    public Command stopMotorCommand() {
+        return new RunCommand(() -> intakeMotor.set(0));
     }
 
   
