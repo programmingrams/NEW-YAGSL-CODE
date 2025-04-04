@@ -17,16 +17,22 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
+import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -34,6 +40,11 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.subsystems.swervedrive.Vision.Cameras;
+import frc.robot.utilities.FieldConstants;
+import frc.robot.utilities.LimelightHelpers;
+import frc.robot.utilities.RobotPoseLookup;
+
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -56,6 +67,11 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 public class SwerveSubsystem extends SubsystemBase
 {
 
+
+  public RobotPoseLookup poseLookup = new RobotPoseLookup();
+  public Field2d test = new Field2d();
+
+
   /**
    * Swerve drive object.
    */
@@ -77,17 +93,11 @@ public class SwerveSubsystem extends SubsystemBase
   public SwerveSubsystem(File directory)
   {
     boolean blueAlliance = false;
-    Pose2d startingPose = blueAlliance ? new Pose2d(new Translation2d(Meter.of(1),
-                                                                      Meter.of(4)),
-                                                    Rotation2d.fromDegrees(0))
-                                       : new Pose2d(new Translation2d(Meter.of(16),
-                                                                      Meter.of(4)),
-                                                    Rotation2d.fromDegrees(180));
     // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
     SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
     try
     {
-      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, startingPose);
+      swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED);
       // Alternative method if you don't want to supply the conversion factor via JSON files.
       // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
     } catch (Exception e)
@@ -138,12 +148,9 @@ public class SwerveSubsystem extends SubsystemBase
   @Override
   public void periodic()
   {
-    // When vision is enabled we must manually update odometry in SwerveDrive
-    if (visionDriveTest)
-    {
-      swerveDrive.updateOdometry();
-      vision.updatePoseEstimation(swerveDrive);
-    }
+    poseLookup.addPose(swerveDrive.getPose());
+    updateVisionMeasurement();
+    //swerveDrive.field
   }
 
   @Override
@@ -716,10 +723,164 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Add a fake vision reading for testing purposes.
    */
-  public void addFakeVisionReading()
-  {
-    swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
-  }
+    /*public void updateVisionMeasurement() {
+        swerveDrive.addVisionMeasurement(LimelightHelpers.getBotPose2d_wpiBlue("limelight"), Timer.getFPGATimestamp());
+    }*/
+
+      public void updateVisionMeasurement() {
+        double time = Timer.getFPGATimestamp();
+        // For this example, we assume blue alliance (adjust as needed).
+        DriverStation.Alliance alliance = DriverStation.Alliance.Blue;
+        // Calculate capture timestamps using latency values.
+        double leftPoseTimestamp = time - ((LimelightHelpers.getLatency_Capture("limelight")
+                + LimelightHelpers.getLatency_Pipeline("limelight")) / 1000.0);
+        double rightPoseTimestamp = time - ((LimelightHelpers.getLatency_Capture("limelight-right")
+                + LimelightHelpers.getLatency_Pipeline("limelight-right")) / 1000.0);
+        // Lookup the robot's pose at capture times.
+        Pose2d robotAtLeftCapture = poseLookup.lookup(leftPoseTimestamp);
+        Pose2d robotAtRightCapture = poseLookup.lookup(rightPoseTimestamp);
+        Pose2d leftBotPose = null;
+        Pose2d rightBotPose = null;
+        boolean force = DriverStation.isDisabled();
+        // Get left camera vision measurement if valid.
+        if (LimelightHelpers.getTV("limelight")) {
+            Pose2d botpose = (alliance == DriverStation.Alliance.Blue
+                    ? LimelightHelpers.getBotPose2d_wpiBlue("limelight")
+                    : LimelightHelpers.getBotPose2d_wpiRed("limelight"));
+            if (botpose.getX() > 0.1
+                    && botpose.getX() < FieldConstants.fieldLength - 0.1
+                    && botpose.getY() > 0.1
+                    && botpose.getY() < FieldConstants.fieldWidth - 1) {
+                leftBotPose = botpose;
+                if (!force) {
+                    Pose2d mTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight").pose;
+                    leftBotPose = leftBotPose.interpolate(mTag2, 0.8);
+                }
+            }
+        }
+        // Get right camera vision measurement if valid.
+        if (LimelightHelpers.getTV("limelight-right")) {
+            Pose2d botpose = (alliance == DriverStation.Alliance.Blue
+                    ? LimelightHelpers.getBotPose2d_wpiBlue("limelight-right")
+                    : LimelightHelpers.getBotPose2d_wpiRed("limelight-right"));
+            if (botpose.getX() > 0.1
+                    && botpose.getX() < FieldConstants.fieldLength - 0.1
+                    && botpose.getY() > 0.1
+                    && botpose.getY() < FieldConstants.fieldWidth - 1) {
+                rightBotPose = botpose;
+                if (!force) {
+                    Pose2d mTag2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight-right").pose;
+                    rightBotPose = rightBotPose.interpolate(mTag2, 0.8);
+                }
+            }
+        }
+        Pose2d correctionPose = null;
+        Pose2d robotAtCorrectionPose = null;
+        double correctionTimestamp = 0;
+        Matrix<N3, N1> correctionDevs = null;
+        boolean correctYaw = true;
+        if (!force) {
+            LimelightHelpers.SetRobotOrientation("limelight",
+                    swerveDrive.getYaw().getDegrees(),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0);
+            LimelightHelpers.SetRobotOrientation("limelight-right",
+                    swerveDrive.getYaw().getDegrees(),
+                    0,
+                    0,
+                    0,
+                    0,
+                    0);
+        }
+        if (leftBotPose != null && rightBotPose != null) {
+            Pose2d leftToRightDiff = leftBotPose.relativeTo(rightBotPose);
+            if (leftToRightDiff.getTranslation().getNorm() < 0.3
+                    && (!correctYaw || Math.abs(leftToRightDiff.getRotation().getDegrees()) < 15)) {
+                // Measurements agree; interpolate.
+                correctionPose = leftBotPose.interpolate(rightBotPose, 0.5);
+                robotAtCorrectionPose = robotAtLeftCapture.interpolate(robotAtRightCapture, 0.5);
+                correctionTimestamp = (leftPoseTimestamp + rightPoseTimestamp) / 2.0;
+                correctionDevs = Constants.VisionConstants.visionStdDevsTrust;
+            } else {
+                // Measurements disagree; choose the one closer to its lookup.
+                Pose2d leftDiff = leftBotPose.relativeTo(robotAtLeftCapture);
+                Pose2d rightDiff = rightBotPose.relativeTo(robotAtRightCapture);
+                double leftDist = leftDiff.getTranslation().getNorm();
+                double rightDist = rightDiff.getTranslation().getNorm();
+                if ((leftDist < 2.0 || force) && leftDist <= rightDist) {
+                    if (!correctYaw || force || Math.abs(leftDiff.getRotation().getDegrees()) < 15) {
+                        correctionPose = leftBotPose;
+                        robotAtCorrectionPose = robotAtLeftCapture;
+                        correctionTimestamp = leftPoseTimestamp;
+                        correctionDevs = Constants.VisionConstants.visionStdDevs;
+                    }
+                } else if ((rightDist < 2.0 || force) && rightDist <= leftDist) {
+                    if (!correctYaw || force || Math.abs(rightDiff.getRotation().getDegrees()) < 15) {
+                        correctionPose = rightBotPose;
+                        robotAtCorrectionPose = robotAtRightCapture;
+                        correctionTimestamp = rightPoseTimestamp;
+                        correctionDevs = Constants.VisionConstants.visionStdDevs;
+                    }
+                }
+            }
+        } else if (leftBotPose != null) {
+            Pose2d leftDiff = leftBotPose.relativeTo(robotAtLeftCapture);
+            double leftDist = leftDiff.getTranslation().getNorm();
+            if (leftDist < 2.0 || force) {
+                if (!correctYaw || force || Math.abs(leftDiff.getRotation().getDegrees()) < 15) {
+                    correctionPose = leftBotPose;
+                    robotAtCorrectionPose = robotAtLeftCapture;
+                    correctionTimestamp = leftPoseTimestamp;
+                    correctionDevs = Constants.VisionConstants.visionStdDevs;
+                }
+            }
+        } else if (rightBotPose != null) {
+            Pose2d rightDiff = rightBotPose.relativeTo(robotAtRightCapture);
+            double rightDist = rightDiff.getTranslation().getNorm();
+            if (rightDist < 2.0 || force) {
+                if (!correctYaw || force || Math.abs(rightDiff.getRotation().getDegrees()) < 15) {
+                    correctionPose = rightBotPose;
+                    robotAtCorrectionPose = robotAtRightCapture;
+                    correctionTimestamp = rightPoseTimestamp;
+                    correctionDevs = Constants.VisionConstants.visionStdDevs;
+                }
+            }
+        }
+        if (correctionPose != null) {
+            // Determine if we should correct yaw:
+            // Only correct yaw if the robot is not moving (translation speeds below a threshold)
+            // or if the robot is disabled.
+            // Get the current chassis speeds.
+            ChassisSpeeds currentSpeeds = swerveDrive.getRobotVelocity();
+            // Check if the robot is moving translationally or rotating.
+            boolean isMoving = Math.abs(currentSpeeds.vxMetersPerSecond) > 0.1
+                    || Math.abs(currentSpeeds.vyMetersPerSecond) > 0.1
+                    || Math.abs(currentSpeeds.omegaRadiansPerSecond) > 0.1;
+            boolean allowYawCorrection = (DriverStation.isDisabled() || !isMoving);
+            // If not allowing yaw correction, preserve the current heading from the drive's pose.
+            Pose2d visionMeasurement = allowYawCorrection
+                    ? correctionPose
+                    : new Pose2d(correctionPose.getTranslation(), swerveDrive.getYaw());
+            // Feed the vision measurement into the drive subsystem's odometry.
+            // test.setRobotPose(visionMeasurement);
+            // SmartDashboard.putData("Test Field", test);
+            swerveDrive.addVisionMeasurement(visionMeasurement, Timer.getFPGATimestamp());//, Utils.fpgaToCurrentTime(correctionTimestamp), correctionDevs);
+        }
+        // Optionally, send debugging info to SmartDashboard.
+        if (leftBotPose != null) {
+            SmartDashboard.putNumberArray("LLPoseLeft", new double[]{
+                    leftBotPose.getX(), leftBotPose.getY(), leftBotPose.getRotation().getDegrees()
+            });
+        }
+        if (rightBotPose != null) {
+            SmartDashboard.putNumberArray("LLPoseRight", new double[]{
+                    rightBotPose.getX(), rightBotPose.getY(), rightBotPose.getRotation().getDegrees()
+            });
+        }
+    } 
 
   /**
    * Gets the swerve drive object.

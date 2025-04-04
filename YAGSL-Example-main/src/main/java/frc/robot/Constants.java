@@ -10,9 +10,13 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import swervelib.math.Matter;
+import edu.wpi.first.math.Matrix;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean constants. This
@@ -67,7 +71,7 @@ public final class Constants
         public static final double L1_ROT = 0.33333;
         public static final double L2_ROT = 23.2141;
         public static final double L3_ROT = 53.857;
-        public static final double L4_ROT = 89.26568603515625;
+        public static final double L4_ROT = 87.26568603515625;
         public static final double IN_ROT = 10.42862;
 
         public static final double P_UP = 0.1;
@@ -138,6 +142,15 @@ public final class Constants
         }};
     }
 
+    public static class VisionConstants {
+        public static final Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.05);
+        public static final Matrix<N3, N1> visionStdDevs = VecBuilder.fill(0.9, 0.9, 0.9);
+        public static final Matrix<N3, N1> visionStdDevsTrust = VecBuilder.fill(0.2, 0.2, 0.2);
+
+  }
+
+
+
     public static final class WristConstants{
         public static final int MOTOR_ID = 16;
         public static double STOW_ROT_WRIST = -0.1;
@@ -166,11 +179,11 @@ public final class Constants
 
     }
     public static final class EndAffectorConstants{
-        public static final int MOTOR_ID = 16;
+        public static final int MOTOR_ID = 15;
 
         public static final double INTAKE_CORAL_SPEED = -0.4;
         public static final double HOLD_CORAL_SPEED = -0.1;
-        public static final double DEPOSIT_CORAL_SPEED = 0.3;
+        public static final double DEPOSIT_CORAL_SPEED = 0.45;
 
         public static final boolean INTAKE_INVERTED = false;
         public static final int INTAKE_CURRENT_LIMIT = 30;

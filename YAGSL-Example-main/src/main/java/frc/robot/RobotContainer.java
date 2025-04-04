@@ -23,6 +23,8 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+import frc.robot.utilities.FieldConstants.ReefSide;
+import frc.robot.commands.swervedrive.drive.AutoReefPoseCommand;
 import java.io.File;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.ElevatorSubsystem.Position;
@@ -59,13 +61,21 @@ public class RobotContainer
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+  /*SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                 () -> leftJoy.getY() * -1,
                                                                 () -> leftJoy.getX() * -1)
                                                             .withControllerRotationAxis(rightJoy::getX)
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
-                                                            .allianceRelativeControl(true);
+                                                            .allianceRelativeControl(true);*/
+
+
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                                            () -> leftJoy.getY() * -1,
+                                                            () -> leftJoy.getX() * -1)
+                                                        .withControllerRotationAxis(rightJoy::getX)
+                                                        .deadband(OperatorConstants.DEADBAND)
+                                                        .scaleTranslation(0.8);
 
   /**
    * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
@@ -136,7 +146,7 @@ public class RobotContainer
     elevatorTargetL2.onTrue(elevator.goTo(Position.L2).alongWith(wrist.goTo(WristPosition.L2)));
 
     Trigger elevatorTargetIN = new Trigger(() -> operator.getRawButton(3));
-    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)));
+    elevatorTargetIN.onTrue(elevator.goTo(Position.IN).alongWith(wrist.goTo(WristPosition.IN)).alongWith(end.holdCoralCommand()));
     
     Trigger elevatorTargetL3 = new Trigger(() -> operator.getRawButton(7));
     elevatorTargetL3.onTrue(elevator.goTo(Position.L3).alongWith(wrist.goTo(WristPosition.L3)));
@@ -156,6 +166,16 @@ public class RobotContainer
     coralDeposit.onTrue(end.depositCoralCommand());  // Runs deposit when pressed
     coralDeposit.onFalse(end.stopMotorCommand()); // Stops motor when released
     
+    Trigger autoAlignLeft = new Trigger(() -> leftJoy.getRawButton(2));
+    Trigger autoAlignRight = new Trigger(() -> rightJoy.getRawButton(2));
+
+
+    
+    autoAlignLeft.whileTrue(new AutoReefPoseCommand(drivebase, leftJoy::getX, leftJoy::getY, rightJoy::getX, ReefSide.LEFT));
+    autoAlignRight.whileTrue(new AutoReefPoseCommand(drivebase, leftJoy::getX, leftJoy::getY, rightJoy::getX, ReefSide.RIGHT));
+
+
+
 
 
     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
@@ -216,7 +236,7 @@ public class RobotContainer
     } else
     {
       driverXbox.a().onTrue((Commands.runOnce(drivebase::zeroGyro)));
-      driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+      //driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
       driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
