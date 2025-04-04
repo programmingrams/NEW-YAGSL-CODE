@@ -52,7 +52,7 @@ public class EndAffectorSubsystem extends SubsystemBase {
         
 
     public Command stopMotorCommand() {
-        return new RunCommand(() -> intakeMotor.set(0));
+        return new InstantCommand(() -> intakeMotor.set(0));
     }
 
   
@@ -70,15 +70,15 @@ public class EndAffectorSubsystem extends SubsystemBase {
      * @return the command
      */
     public Command holdCoralCommand() {
-        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.HOLD_CORAL_SPEED));
+        return new InstantCommand(() -> setCoralSpeed(EndAffectorConstants.HOLD_CORAL_SPEED));
     }    
     
     public Command intakeCoralCommand() {
-        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.INTAKE_CORAL_SPEED));
+        return new InstantCommand(() -> setCoralSpeed(EndAffectorConstants.INTAKE_CORAL_SPEED));
     }    
     
     public Command depositCoralCommand() {
-        return new RunCommand(() -> setCoralSpeed(EndAffectorConstants.DEPOSIT_CORAL_SPEED));
+        return new InstantCommand(() -> setCoralSpeed(EndAffectorConstants.DEPOSIT_CORAL_SPEED));
     }
 
 }
